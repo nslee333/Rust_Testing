@@ -1,7 +1,7 @@
 use std::env;
 use std::io::{stdin, stdout, Write};
 use std::path::Path;
-use std::process::{Command, Child};
+use std::process::{Command, Child, Stdio};
 
 fn main() {
    loop { 
@@ -24,16 +24,30 @@ fn main() {
             },
             "exit" => return,
             command => {
-                let mut child = Command::new(command)
-                    .args(args)
-                    .spawn()
-                    .unwrap();
+                let stdin = previous_command
+                    .map_or(Stdio::inherit(),
+                        |output: Child| Stdio::from(output.stdout.unwrap()));
 
-                match child {
-                    Ok(mut child) => {child.wait(); },
-                    Err(e) => eprintln!("{}", e),
+                let stdout = if command.peek().is_some() {
+                    Stdio::piped()
+                } else {
+                    Stdio::inherit()
                 };
-            };
+
+                let output = Command::new(command)
+                    .args(args)
+                    .stdin(stdin)
+                    .stdout(stdout)
+                    .spawn();
+
+                match output {
+                    Ok(output) => { previous_command = Some(output); },
+                    Err(e) => {
+                        previous_command = None;
+                        eprintln!("{}", e);
+                    },
+                };
+            }
         }
     }
 }
