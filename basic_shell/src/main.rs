@@ -1,5 +1,4 @@
 use std::env;
-use std::env::args;
 use std::io::{stdin, stdout, Write};
 use std::path::Path;
 use std::process::{Command, Child, Stdio};
@@ -30,15 +29,16 @@ fn main() {
 
                 previous_command = None;
             },
-            "exit" = return,
+            "exit" => return,
             command => {
                 let stdin = previous_command
                     .map_or(Stdio::inherit(),
                             |output: Child| Stdio::from(output.stdout.unwrap()));
+
                 let stdout = if commands.peek().is_some() {
-                    Stdio::piped();
+                    Stdio::piped()
                 } else {
-                    stdio::inherit()
+                    Stdio::inherit()
                 };
 
                 let output = Command::new(command)
