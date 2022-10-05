@@ -32,9 +32,33 @@ fn main() {
             },
             "exit" = return,
             command => {
-                
+                let stdin = previous_command
+                    .map_or(Stdio::inherit(),
+                            |output: Child| Stdio::from(output.stdout.unwrap()));
+                let stdout = if commands.peek().is_some() {
+                    Stdio::piped();
+                } else {
+                    stdio::inherit()
+                };
+
+                let output = Command::new(command)
+                    .args(args)
+                    .stdin(stdin)
+                    .stdout(stdout)
+                    .spawn();
+
+                match output {
+                    Ok(output) => {previous_command = Some(output); },
+                    Err(e) => {
+                        previous_command = None;
+                        eprintln!("{}", e);
+                    },
+                };   
             }
         }
     }
+        if let Some(mut final_command) = previous_command {
+            final_command.wait().unwrap();
+        }
    }
 }
