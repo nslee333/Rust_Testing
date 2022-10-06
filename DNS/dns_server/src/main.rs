@@ -48,4 +48,19 @@ impl BytePacketBuffer {
         }
         Ok(self.buf[pos])
     }
+
+    fn get_range(&mut self, start: usize, len: usize) -> Result<&[u8]> {
+        if start + len >= 512 {
+            return Err("End of buffer".into());
+        }
+        Ok(&self.buf[start...start + len as usize])
+    }
+
+    fn read_u16(&mut self) -> Result<u16> {
+        let res = ((self.read()? as u16) << 8) | (self.read()? as u16);
+
+        Ok(res)
+    }
+
+    
 }
