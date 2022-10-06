@@ -103,11 +103,28 @@ impl BytePacketBuffer {
                 jumps_performed += 1;
 
                 continue;
+            } else {
+                pos += 1;
+
+                if len == 0 {
+                    break;
+                }
+
+                outstr.push_str(delim);
+
+                let str_buffer = self.get_range(pos, len as usize)?;
+                outstr.push_str(&String::from_utf8_lossy(str_buffer).to_lowercase());
+
+                delim = ".";
+
+                post += len as usize;
             }
         }
+        
+        if !jumped {
+            self.seek(pos)?;
+        }
 
-
+        Ok(())
     }
-
-
 }
