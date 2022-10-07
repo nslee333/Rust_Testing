@@ -3,6 +3,28 @@ pub struct BytePacketBuffer {
     pub pos: usize,
 }
 
+#[derive(Clone, Debug)]
+pub struct DnsHeader {
+    pub id: u16,
+
+    pub recursion_desired: bool,
+    pub truncated_message: bool,
+    pub authoritative_answer: bool,
+    pub opcode: u8,
+    pub response: bool,
+
+    pub rescode: ResultCode,
+    pub checking_disabled: bool,
+    pub authed_data: bool,
+    pub z: bool,
+    pub recursion_available: bool,
+
+    pub questions: u16,
+    pub answers: u16,
+    pub authoritative_entries: u16,
+    pub resource_entries: u16,
+}
+
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum ResultCode {
     NOERROR = 0,
